@@ -6,6 +6,7 @@ from pathlib import Path
 from torch.utils.data import Dataset
 from torchvision import transforms
 import pickle
+import plotly.graph_objs as go
 
 #################### Read file ####################
 def read_off(path):
@@ -217,3 +218,48 @@ class PointCloudData(Dataset):
         elif self.task == "Segmentation":
             return {'pointcloud': pointcloud.squeeze(), 
                     'category': cat.astype(int)}
+                    
+#################### Plotting Code ####################
+def view_mesh(xs,ys, zs, ig, jg, kg):
+  mesh = go.Mesh3d(x=xs, y=ys, z=zs, color='lightpink', opacity=0.50, i=ig, j=jg, k=kg)
+
+  layout = go.Layout(
+      scene=dict(
+          xaxis_title='X',
+          yaxis_title='Y',
+          zaxis_title='Z',
+          camera=dict(
+              eye=dict(x=3, y=-3, z=3) 
+          )
+      ),
+      width=800,
+      height=800,
+      margin=dict(r=20, l=10, b=10, t=10))
+
+  fig = go.Figure(data=[mesh], layout=layout)
+  fig.show()
+
+def view_scatter(xs,ys,zs):
+    layout = go.Layout(
+    scene=dict(
+        xaxis_title='X',
+        yaxis_title='Y',
+        zaxis_title='Z',
+        camera=dict(
+            eye=dict(x=3, y=-3, z=3) 
+        )
+    ),
+    width=800,
+    height=800,
+    margin=dict(r=20, l=10, b=10, t=10))
+    
+    scatter3d=go.Scatter3d(x=xs, y=ys, z=zs, mode='markers')
+    fig = go.Figure(data=[scatter3d], layout=layout)
+    fig.update_traces(marker=dict(size=2,
+                      line=dict(width=2,
+                      color='DarkSlateGrey')),
+                      selector=dict(mode='markers'))
+    fig.show()
+
+  
+  
