@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.optim import Adam
 
 #################### Loss function ####################
-def PointNetLoss(x, category, mtx_in, mtx_feature, alpha = 0.0001):
+def PointNetLoss(x, category, mtx_in, mtx_feature, task, alpha = 0.0001):
     # mtx_in: 3 by 3 / mtx_feature: 64 by 64
     #TODO Implement Claissification loss function 
     #Hint: use torch.nn.NLLLoss()
@@ -12,9 +12,14 @@ def PointNetLoss(x, category, mtx_in, mtx_feature, alpha = 0.0001):
     batch_size = x.size(0)
     criterion = NotImplementedError  
 
-
     #TODO Implement regularization loss - equation (2), L_reg in the paper
-    # Make sure to send the tensor to the device!
+    # ake sure to send the tensor to the device!
+    #NOTE The loss IS task-specific.
+    if task == 'Classification':
+        pass
+    elif task == 'Segmentation':
+        pass
+    
 
     L_reg_1 = NotImplementedError # Coming from 3x3 matrix
     L_reg_2 = NotImplementedError # Coming from 64x64 matrix
@@ -129,7 +134,7 @@ class Transform_Classification(nn.Module):
         return x, mtx_in, mtx_feature
     
 class Transform_Segmentation(nn.Module):
-    def __init__(self, use_tnet, task):
+    def __init__(self, use_tnet):
         super().__init__()
         self.use_tnet = use_tnet
 
@@ -197,7 +202,6 @@ class Transform_Segmentation(nn.Module):
         out.append(x)
         #TODO Weight-shared layer
         x = NotImplementedError
-        out.append(x)
         x = nn.MaxPool1d(x.size(-1))(x)
         x = nn.Flatten(1)(x)
         

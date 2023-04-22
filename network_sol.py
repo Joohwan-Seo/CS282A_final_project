@@ -4,13 +4,17 @@ import torch.nn.functional as F
 from torch.optim import Adam
 
 #################### Loss function ####################
-def PointNetLoss(x, category, mtx_in, mtx_feature, alpha = 0.0001):
+def PointNetLoss(x, category, mtx_in, mtx_feature, task, alpha = 0.0001):
     # mtx_in: 3 by 3 / mtx_feature: 64 by 64
     criterion = torch.nn.NLLLoss()
     batch_size = x.size(0)
 
     idmtx_in = torch.eye(3, requires_grad=True).repeat(batch_size, 1, 1).to(x.device)
-    idmtx_feature = torch.eye(64, requires_grad=True).repeat(batch_size, 1, 1).to(x.device)
+    
+    if task == 'Classification':
+        idmtx_feature = torch.eye(64, requires_grad=False).repeat(batch_size, 1, 1).to(x.device)
+    elif task == 'Segmentation':
+        idmtx_feature = torch.eye(128, requires_grad=False).repeat(batch_size, 1, 1).to(x.device)
 
     diff_in = idmtx_in - torch.bmm(mtx_in, mtx_in.transpose(1,2))
     diff_feature = idmtx_feature - torch.bmm(mtx_feature, mtx_feature.transpose(1,2))
@@ -59,7 +63,7 @@ class TNet(nn.Module):
 
 #################### Transform ####################
 class Transform_Classification(nn.Module):
-    def __init__(self, use_tnet, task):
+    def __init__(self, use_tnet):
         super().__init__()
         self.use_tnet = use_tnet
 
@@ -102,7 +106,7 @@ class Transform_Classification(nn.Module):
     
 
 class Transform_Segmentation(nn.Module):
-    def __init__(self, use_tnet, task):
+    def __init__(self, use_tnet):
         super().__init__()
         self.use_tnet = use_tnet
 
@@ -151,7 +155,6 @@ class Transform_Segmentation(nn.Module):
         x = F.relu(self.bn4(self.conv4(x)))
         out.append(x)
         x = F.relu(self.bn5(self.conv5(x)))
-        out.append(x)
         x = nn.MaxPool1d(x.size(-1))(x)
         x = nn.Flatten(1)(x)
         
