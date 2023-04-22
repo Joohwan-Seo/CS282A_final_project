@@ -1,7 +1,7 @@
 import time
 import torch
 from torch.utils.data import DataLoader
-from network import PointNetLoss
+from network_sol import PointNetLoss
 
 #################### Training ####################
 def TrainModel(
@@ -27,12 +27,12 @@ def TrainModel(
             pointcloud = data['pointcloud'].to(device).float()
             category   = data['category'].to(device)
 
-            #TODO implement train function
-            # Don't forget to initialize the optimizer!
+            optimizer.zero_grad()
             output, mat_in, mat_feature = model(pointcloud.transpose(1,2))
 
-            loss = NotImplementedError #Hint: There is some loss function that was imported.
-            #
+            loss = PointNetLoss(output, category, mat_in, mat_feature, task)
+            loss.backward()
+            optimizer.step()
 
             history_epoch['train_loss'].append(loss.item())
 
