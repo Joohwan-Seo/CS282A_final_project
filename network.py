@@ -186,7 +186,7 @@ class Transform_Segmentation(nn.Module):
             mtx_feature = self.feature_transform(x) # 64 by 64 matrix
         else:
             batch_size = data_in.size(0)
-            mtx_feature = torch.eye(64, requires_grad=False).repeat(batch_size, 1, 1).to(data_in.device)
+            mtx_feature = torch.eye(128, requires_grad=False).repeat(batch_size, 1, 1).to(data_in.device)
 
         #TODO Multiply mtx_in to the data_in.
             #HINT: Try using torch.bmm, together with the torch.transpose
